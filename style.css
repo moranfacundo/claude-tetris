@@ -11,12 +11,30 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   user-select: none;
 }
 
 .wrapper {
   position: relative;
+  max-width: 100%;
+}
+
+/* ---- Título ---- */
+.game-title {
+  font-size: clamp(1.25rem, min(8vw, 6dvh), 2.5rem);
+  line-height: 1.1;
+  margin-bottom: clamp(6px, 1.5dvh, 16px);
+  text-align: center;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  padding-left: 0.3em; /* compensa el letter-spacing final para centrar */
+  color: #7aa2f7;
+  text-shadow: 0 0 18px rgba(122, 162, 247, 0.45);
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .game-container {
@@ -27,6 +45,10 @@ body {
 
 #board {
   display: block;
+  /* se ajusta a la altura disponible para que el título no genere scroll */
+  height: min(600px, calc(100dvh - 6dvh - 3rem));
+  width: auto;
+  aspect-ratio: 1 / 2;
   border: 1px solid #2a2a3a;
   background: #1a1a25;
   border-radius: 4px;
@@ -36,6 +58,8 @@ body {
 /* ---- Panel lateral ---- */
 .panel {
   width: 160px;
+  min-width: 0;
+  flex-shrink: 1;
   display: flex;
   flex-direction: column;
   gap: 20px;
