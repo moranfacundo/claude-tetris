@@ -64,6 +64,8 @@ jobs:
             Eres un asistente de triage para el repo ${{ github.repository }} (Tetris en JavaScript vanilla: game.js, index.html, style.css).
             Issue a analizar: #${{ github.event.issue.number }}. Evento: ${{ github.event.action }}.
             Responde siempre en español. No modifiques código ni abras PRs.
+            Toda respuesta (comentarios en la issue) debe estar formateada en Markdown válido para GitHub (GFM):
+            encabezados `##`, listas, **negritas**, `código inline`, bloques de código con lenguaje (```js), tablas y checklists `- [ ]` cuando aplique.
 
             ## Pasos
             1. Lee la issue: `gh issue view ${{ github.event.issue.number }} --json title,body,labels,comments`.
@@ -82,7 +84,7 @@ jobs:
                - Busca uno existente: `gh api repos/${{ github.repository }}/issues/${{ github.event.issue.number }}/comments --paginate` y filtra por el marcador.
                - Si existe: actualízalo con `gh api -X PATCH repos/${{ github.repository }}/issues/comments/<id> -f body=...`.
                - Si no: `gh issue comment N --body ...`.
-            5. Formato del comentario (debe servir para implementar la solución sin más investigación):
+            5. Formato del comentario en Markdown (cada sección con encabezado `##`; debe servir para implementar la solución sin más investigación):
                - **Resumen**
                - **Clasificación**: labels y justificación breve
                - **Causa raíz probable** (o punto de integración si es feature): `archivo:línea`, funciones, flujo
