@@ -28,6 +28,29 @@
     <div class="game-container">
       <canvas id="board" width="300" height="600"></canvas>
 
+      <svg id="fx" class="fx" viewBox="-70 -70 140 140" aria-hidden="true">
+        <defs>
+          <radialGradient id="fx-fire">
+            <stop offset="0" stop-color="#fff9c4" />
+            <stop offset="0.45" stop-color="#ffb300" />
+            <stop offset="0.8" stop-color="#e53935" />
+            <stop offset="1" stop-color="#e53935" stop-opacity="0" />
+          </radialGradient>
+        </defs>
+        <circle class="fx-ring" r="40" />
+        <circle class="fx-core" r="40" fill="url(#fx-fire)" />
+        <g class="fx-rays">
+          <line x1="0" y1="-30" x2="0" y2="-62" />
+          <line x1="0" y1="-30" x2="0" y2="-62" transform="rotate(45)" />
+          <line x1="0" y1="-30" x2="0" y2="-62" transform="rotate(90)" />
+          <line x1="0" y1="-30" x2="0" y2="-62" transform="rotate(135)" />
+          <line x1="0" y1="-30" x2="0" y2="-62" transform="rotate(180)" />
+          <line x1="0" y1="-30" x2="0" y2="-62" transform="rotate(225)" />
+          <line x1="0" y1="-30" x2="0" y2="-62" transform="rotate(270)" />
+          <line x1="0" y1="-30" x2="0" y2="-62" transform="rotate(315)" />
+        </g>
+      </svg>
+
       <aside class="panel">
         <div class="panel-section">
           <span class="label">SCORE</span>
@@ -55,6 +78,7 @@
             <li><kbd>↓</kbd> bajar</li>
             <li><kbd>Space</kbd> caída</li>
             <li><kbd>P</kbd> pausa</li>
+            <li>💣 bomba: explota 3×3</li>
           </ul>
         </div>
       </aside>

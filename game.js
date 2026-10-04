@@ -28,6 +28,24 @@ const PIECES = [
 
 const LINE_SCORES = [0, 100, 300, 500, 800];
 
+// Power-up bomba: pieza 1x1 que aparece cada BOMB_MIN_MS..BOMB_MAX_MS (aleatorio)
+const BOMB_MIN_MS = 30000;
+const BOMB_MAX_MS = 60000;
+const BOMB_TYPE = 8;
+const BOMB_CELL_SCORE = 10;
+const BOMB_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30">
+  <defs><radialGradient id="g" cx="35%" cy="35%" r="70%">
+    <stop offset="0" stop-color="#6b7280"/><stop offset="1" stop-color="#111827"/>
+  </radialGradient></defs>
+  <circle cx="14" cy="17" r="10" fill="url(#g)" stroke="#000" stroke-width="1"/>
+  <ellipse cx="10.5" cy="13" rx="3" ry="2" fill="#fff" opacity="0.45"/>
+  <path d="M19 8 Q22 4 25 5" fill="none" stroke="#a16207" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="25.5" cy="4.5" r="2.6" fill="#fbbf24"/>
+  <circle cx="25.5" cy="4.5" r="1.2" fill="#ef4444"/>
+</svg>`;
+const bombImg = new Image();
+bombImg.src = 'data:image/svg+xml,' + encodeURIComponent(BOMB_SVG);
+
 const canvas = document.getElementById('board');
 const ctx = canvas.getContext('2d');
 const nextCanvas = document.getElementById('next-canvas');
@@ -39,8 +57,44 @@ const overlay = document.getElementById('overlay');
 const overlayTitle = document.getElementById('overlay-title');
 const overlayScore = document.getElementById('overlay-score');
 const restartBtn = document.getElementById('restart-btn');
+const fxEl = document.getElementById('fx');
 
 let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId;
+let bombTimer, bombNextAt;
+
+function randomBombDelay() {
+  return BOMB_MIN_MS + Math.random() * (BOMB_MAX_MS - BOMB_MIN_MS);
+}
+
+function bombPiece() {
+  return { type: BOMB_TYPE, shape: [[BOMB_TYPE]], bomb: true, x: Math.floor(COLS / 2), y: 0 };
+}
+
+function explode(cx, cy) {
+  let destroyed = 0;
+  for (let r = cy - 1; r <= cy + 1; r++) {
+    for (let c = cx - 1; c <= cx + 1; c++) {
+      if (r < 0 || r >= ROWS || c < 0 || c >= COLS) continue;
+      if (board[r][c]) { board[r][c] = 0; destroyed++; }
+    }
+  }
+  score += destroyed * BOMB_CELL_SCORE * level;
+  updateHUD();
+  showExplosion(cx, cy);
+}
+
+function showExplosion(cx, cy) {
+  // el canvas se escala por CSS: usar tamaño real de celda en pantalla
+  const cell = canvas.clientWidth / COLS;
+  fxEl.style.width = fxEl.style.height = `${cell * 4.5}px`;
+  fxEl.style.left = `${canvas.offsetLeft + canvas.clientLeft + (cx + 0.5) * cell}px`;
+  fxEl.style.top = `${canvas.offsetTop + canvas.clientTop + (cy + 0.5) * cell}px`;
+  fxEl.classList.remove('boom');
+  canvas.classList.remove('shake');
+  void fxEl.getBoundingClientRect(); // reinicia la animación
+  fxEl.classList.add('boom');
+  canvas.classList.add('shake');
+}
 
 function createBoard() {
   return Array.from({ length: ROWS }, () => new Array(COLS).fill(0));
@@ -136,8 +190,12 @@ function softDrop() {
 }
 
 function lockPiece() {
-  merge();
-  clearLines();
+  if (current.bomb) {
+    explode(current.x, current.y);
+  } else {
+    merge();
+    clearLines();
+  }
   spawn();
 }
 
@@ -158,6 +216,12 @@ function updateHUD() {
 
 function drawBlock(context, x, y, colorIndex, size, alpha) {
   if (!colorIndex) return;
+  if (colorIndex === BOMB_TYPE) {
+    context.globalAlpha = alpha ?? 1;
+    context.drawImage(bombImg, x * size + 1, y * size + 1, size - 2, size - 2);
+    context.globalAlpha = 1;
+    return;
+  }
   const color = COLORS[colorIndex];
   context.globalAlpha = alpha ?? 1;
   context.fillStyle = color;
@@ -245,6 +309,13 @@ function loop(ts) {
   const dt = ts - lastTime;
   lastTime = ts;
   dropAccum += dt;
+  bombTimer += dt;
+  if (bombTimer >= bombNextAt && !current.bomb && !next.bomb) {
+    next = bombPiece();
+    drawNext();
+    bombTimer = 0;
+    bombNextAt = randomBombDelay();
+  }
   if (dropAccum >= dropInterval) {
     dropAccum = 0;
     if (!collide(current.shape, current.x, current.y + 1)) {
@@ -268,6 +339,8 @@ function init() {
   gameOver = false;
   dropInterval = 1000;
   dropAccum = 0;
+  bombTimer = 0;
+  bombNextAt = randomBombDelay();
   lastTime = performance.now();
   next = randomPiece();
   spawn();
@@ -303,6 +376,7 @@ document.addEventListener('keydown', e => {
 });
 
 restartBtn.addEventListener('click', init);
+canvas.addEventListener('animationend', () => canvas.classList.remove('shake'));
 
 // Tema claro/oscuro: sin elección guardada se sigue el del sistema
 const themeToggle = document.getElementById('theme-toggle');

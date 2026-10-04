@@ -105,9 +105,41 @@ body {
 }
 
 .game-container {
+  position: relative;
   display: flex;
   gap: 20px;
   align-items: flex-start;
+}
+
+/* ---- Explosión de bomba ---- */
+.fx {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  opacity: 0;
+  overflow: visible;
+}
+.fx.boom { animation: fx-show 0.55s ease-out; }
+.fx-core { transform-origin: center; }
+.fx.boom .fx-core { animation: fx-core 0.55s ease-out; }
+.fx-ring { fill: none; stroke: #ffd54f; stroke-width: 4; transform-origin: center; opacity: 0; }
+.fx.boom .fx-ring { animation: fx-ring 0.55s ease-out; }
+.fx-rays line { stroke: #ffb300; stroke-width: 4; stroke-linecap: round; }
+.fx-rays { transform-origin: center; }
+.fx.boom .fx-rays { animation: fx-rays 0.55s ease-out; }
+
+@keyframes fx-show { 0%, 85% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes fx-core { 0% { transform: scale(0.1); } 35% { transform: scale(1.15); } 100% { transform: scale(0.6); opacity: 0; } }
+@keyframes fx-ring { 0% { transform: scale(0.2); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+@keyframes fx-rays { 0% { transform: scale(0.3); opacity: 1; } 100% { transform: scale(1.2) rotate(20deg); opacity: 0; } }
+
+#board.shake { animation: board-shake 0.3s linear; }
+@keyframes board-shake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-4px, 2px); }
+  40% { transform: translate(4px, -2px); }
+  60% { transform: translate(-3px, -2px); }
+  80% { transform: translate(3px, 2px); }
 }
 
 #board {
