@@ -21,6 +21,7 @@ There is no test suite, linter, or bundler — verify changes by opening the pag
 
 - **Board**: `ROWS × COLS` matrix; each cell is `0` (empty) or a color index `1–7` identifying the piece that occupies it.
 - **Pieces**: the 7 tetrominoes are square matrices in `PIECES`. Rotation is done via `rotateCW` (transpose + row reverse), not by storing rotation states.
+- **Skins**: `SKINS = {retro, neon, pastel, pixel}`, each with `colors`, `grid` (null = CSS `--grid`), `bg` and a draw fn; `drawBlock` dispatches to `SKINS[skinName].draw` (bomb keeps shared image). `setSkin` sets `data-skin` on `<html>`, saves `localStorage.skin`, redraws. `COLORS` is the retro palette. `<select id="skin-select">` in the panel.
 - **Collision** (`collide`): checks board bounds and overlap with locked cells; used both for movement and for `ghostY` projection.
 - **Wall kicks** (`tryRotate`): after rotating, tries offsets `[0, -1, 1, -2, 2]` until a non-colliding position is found, else the rotation is discarded.
 - **Game loop** (`loop`): driven by `requestAnimationFrame`; accumulates `dt` and advances the piece one row once `dropAccum >= dropInterval`.
