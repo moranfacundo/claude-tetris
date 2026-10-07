@@ -29,6 +29,7 @@ There is no test suite, linter, or bundler — verify changes by opening the pag
 - **Ghost piece**: `ghostY()` projects the current piece straight down to its landing row; drawn at `globalAlpha = 0.2`.
 - **Bomb power-up**: every `BOMB_MIN_MS..BOMB_MAX_MS` (random) of play time, `loop` swaps `next` for `bombPiece()` (1x1, `type = BOMB_TYPE`, `bomb: true`). `lockPiece` calls `explode()` instead of merge: clears the 3x3 around it, scores `BOMB_CELL_SCORE × level` per cell, no gravity. Bomb sprite is an inline SVG drawn in `drawBlock`; explosion FX is the `#fx` SVG + CSS animations (`showExplosion`).
 - Game-over is triggered inside `spawn()` when the freshly spawned piece already collides at its start position.
+- **Records**: `localStorage['tetrisRecords']` = `{scores:[{name,score,lines,level,date}] (top 5), bestCombo, maxLines}` (`loadRecords`/`saveRecords`, try/catch). `#start-screen` overlay shows on load; the game only starts on "Jugar" (`started` flag; keydown ignored before and while an `<input>` is focused). `endGame` always updates bestCombo/maxLines and, if the score ranks, shows the name form; saving highlights the row (`.highlight`). Combo = consecutive locks clearing >=1 line (`combo`/`maxCombo`, bomb lock resets).
 
 Tunable constants live at the top of `game.js`: `COLS`, `ROWS`, `BLOCK`, `COLORS`, `LINE_SCORES`, initial `dropInterval`. If `COLS`/`ROWS`/`BLOCK` change, update the `<canvas id="board">` `width`/`height` in `index.html` to match (`COLS×BLOCK` by `ROWS×BLOCK`).
 

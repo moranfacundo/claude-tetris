@@ -88,7 +88,35 @@
       <div class="overlay-box">
         <p id="overlay-title">GAME OVER</p>
         <p id="overlay-score"></p>
+        <div id="overlay-records" class="records-block hidden">
+          <form id="name-form" class="name-form hidden">
+            <p id="name-msg"></p>
+            <div class="name-row">
+              <input id="name-input" type="text" maxlength="12" value="Jugador" autocomplete="off" aria-label="Nombre del jugador" />
+              <button id="save-btn" type="submit">Guardar</button>
+            </div>
+          </form>
+          <table class="records-table">
+            <thead><tr><th>#</th><th>Nombre</th><th>Puntos</th><th>Líneas</th></tr></thead>
+            <tbody id="overlay-records-body"></tbody>
+          </table>
+          <p class="records-stats" id="overlay-stats"></p>
+          <button class="reset-records-btn" type="button">Borrar records</button>
+        </div>
         <button id="restart-btn">Reiniciar</button>
+      </div>
+    </div>
+
+    <div id="start-screen" class="overlay">
+      <div class="overlay-box">
+        <p class="start-title">RECORDS</p>
+        <table class="records-table">
+          <thead><tr><th>#</th><th>Nombre</th><th>Puntos</th><th>Líneas</th></tr></thead>
+          <tbody id="start-records-body"></tbody>
+        </table>
+        <p class="records-stats" id="start-stats"></p>
+        <button id="play-btn">Jugar</button>
+        <button class="reset-records-btn" type="button">Borrar records</button>
       </div>
     </div>
   </div>
