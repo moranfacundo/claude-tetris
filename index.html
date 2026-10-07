@@ -11,6 +11,11 @@
       const t = localStorage.getItem('theme');
       if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
     } catch (e) {}
+    // idem para la skin
+    try {
+      const k = localStorage.getItem('skin');
+      if (['retro', 'neon', 'pastel', 'pixel'].includes(k)) document.documentElement.dataset.skin = k;
+    } catch (e) {}
   </script>
 </head>
 <body>
@@ -68,6 +73,16 @@
         <div class="panel-section">
           <span class="label">NEXT</span>
           <canvas id="next-canvas" width="120" height="120"></canvas>
+        </div>
+
+        <div class="panel-section">
+          <label class="label" for="skin-select">SKIN</label>
+          <select id="skin-select">
+            <option value="retro">Retro</option>
+            <option value="neon">Neon</option>
+            <option value="pastel">Pastel</option>
+            <option value="pixel">Pixel art</option>
+          </select>
         </div>
 
         <div class="panel-section controls">
