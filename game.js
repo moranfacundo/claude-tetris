@@ -58,9 +58,21 @@ const overlayTitle = document.getElementById('overlay-title');
 const overlayScore = document.getElementById('overlay-score');
 const restartBtn = document.getElementById('restart-btn');
 const fxEl = document.getElementById('fx');
+const pauseMenu = document.getElementById('pause-menu');
+const resumeBtn = document.getElementById('resume-btn');
+const pauseRestartBtn = document.getElementById('pause-restart-btn');
+const controlsBtn = document.getElementById('controls-btn');
+const pauseControls = document.getElementById('pause-controls');
+const startLevelSel = document.getElementById('start-level');
 
 let board, current, next, score, lines, level, paused, gameOver, lastTime, dropAccum, dropInterval, animId;
 let bombTimer, bombNextAt;
+let startLevel = 1;          // nivel con el que empieza cada partida
+let ignoreRepeat = false;    // tras reanudar, ignora teclas mantenidas hasta el primer keyup
+
+function dropIntervalFor(lvl) {
+  return Math.max(100, 1000 - (lvl - 1) * 90);
+}
 
 function randomBombDelay() {
   return BOMB_MIN_MS + Math.random() * (BOMB_MAX_MS - BOMB_MIN_MS);
@@ -160,8 +172,8 @@ function clearLines() {
   if (cleared) {
     lines += cleared;
     score += (LINE_SCORES[cleared] || 0) * level;
-    level = Math.floor(lines / 10) + 1;
-    dropInterval = Math.max(100, 1000 - (level - 1) * 90);
+    level = Math.max(startLevel, Math.floor(lines / 10) + 1);
+    dropInterval = dropIntervalFor(level);
     updateHUD();
   }
 }
@@ -294,13 +306,16 @@ function togglePause() {
   if (gameOver) return;
   paused = !paused;
   if (!paused) {
+    pauseMenu.classList.add('hidden');
+    ignoreRepeat = true;
     lastTime = performance.now();
+    dropAccum = 0;
     loop(lastTime);
   } else {
     cancelAnimationFrame(animId);
-    overlayTitle.textContent = 'PAUSA';
-    overlayScore.textContent = '';
-    overlay.classList.remove('hidden');
+    pauseControls.classList.add('hidden');
+    controlsBtn.setAttribute('aria-expanded', 'false');
+    pauseMenu.classList.remove('hidden');
   }
 }
 
@@ -334,10 +349,10 @@ function init() {
   board = createBoard();
   score = 0;
   lines = 0;
-  level = 1;
+  level = startLevel;
   paused = false;
   gameOver = false;
-  dropInterval = 1000;
+  dropInterval = dropIntervalFor(level);
   dropAccum = 0;
   bombTimer = 0;
   bombNextAt = randomBombDelay();
@@ -346,13 +361,19 @@ function init() {
   spawn();
   updateHUD();
   overlay.classList.add('hidden');
+  pauseMenu.classList.add('hidden');
   cancelAnimationFrame(animId);
   animId = requestAnimationFrame(loop);
 }
 
 document.addEventListener('keydown', e => {
-  if (e.code === 'KeyP') { togglePause(); return; }
+  if (e.code === 'KeyP' || e.code === 'Escape') {
+    if (!e.repeat) togglePause();
+    return;
+  }
+  // con el menú abierto o tras reanudar, las teclas de juego no hacen nada
   if (paused || gameOver) return;
+  if (ignoreRepeat && e.repeat) return;
   switch (e.code) {
     case 'ArrowLeft':
       if (!collide(current.shape, current.x - 1, current.y)) current.x--;
@@ -375,7 +396,32 @@ document.addEventListener('keydown', e => {
   updateHUD();
 });
 
+document.addEventListener('keyup', e => {
+  // soltar P/Esc (la tecla que reanudó) no cuenta
+  if (e.code !== 'KeyP' && e.code !== 'Escape') ignoreRepeat = false;
+});
+
 restartBtn.addEventListener('click', init);
+resumeBtn.addEventListener('click', () => { resumeBtn.blur(); if (paused) togglePause(); });
+pauseRestartBtn.addEventListener('click', () => { pauseRestartBtn.blur(); init(); });
+controlsBtn.addEventListener('click', () => {
+  const hidden = pauseControls.classList.toggle('hidden');
+  controlsBtn.setAttribute('aria-expanded', String(!hidden));
+  controlsBtn.blur();
+});
+
+// Nivel inicial (1-10), persistido; aplica a la próxima partida
+for (let l = 1; l <= 10; l++) startLevelSel.add(new Option(l, l));
+try {
+  const s = parseInt(localStorage.getItem('startLevel'), 10);
+  if (s >= 1 && s <= 10) startLevel = s;
+} catch (e) {}
+startLevelSel.value = startLevel;
+startLevelSel.addEventListener('change', () => {
+  startLevel = parseInt(startLevelSel.value, 10);
+  try { localStorage.setItem('startLevel', startLevel); } catch (e) {}
+  startLevelSel.blur();
+});
 canvas.addEventListener('animationend', () => canvas.classList.remove('shake'));
 
 // Tema claro/oscuro: sin elección guardada se sigue el del sistema

@@ -28,10 +28,11 @@ There is no test suite, linter, or bundler — verify changes by opening the pag
 - **Scoring/leveling**: `LINE_SCORES = [0, 100, 300, 500, 800]` × current `level`; hard drop adds 2 pts/row, soft drop 1 pt/row. `level` increases every 10 lines; `dropInterval = max(100, 1000 - (level-1)*90)`.
 - **Ghost piece**: `ghostY()` projects the current piece straight down to its landing row; drawn at `globalAlpha = 0.2`.
 - **Bomb power-up**: every `BOMB_MIN_MS..BOMB_MAX_MS` (random) of play time, `loop` swaps `next` for `bombPiece()` (1x1, `type = BOMB_TYPE`, `bomb: true`). `lockPiece` calls `explode()` instead of merge: clears the 3x3 around it, scores `BOMB_CELL_SCORE × level` per cell, no gravity. Bomb sprite is an inline SVG drawn in `drawBlock`; explosion FX is the `#fx` SVG + CSS animations (`showExplosion`).
+- **Pause menu**: `P`/`Esc` toggles `#pause-menu` (separate from the game-over `#overlay`): Reanudar, Reiniciar (`init()`), Ver controles, Nivel inicial (1–10, `startLevel` in localStorage; `init()` sets `level = startLevel`, `clearLines` uses `max(startLevel, floor(lines/10)+1)`). While open, game keys are ignored; after resume `ignoreRepeat` drops held-key repeats until the first keyup.
 - Game-over is triggered inside `spawn()` when the freshly spawned piece already collides at its start position.
 
 Tunable constants live at the top of `game.js`: `COLS`, `ROWS`, `BLOCK`, `COLORS`, `LINE_SCORES`, initial `dropInterval`. If `COLS`/`ROWS`/`BLOCK` change, update the `<canvas id="board">` `width`/`height` in `index.html` to match (`COLS×BLOCK` by `ROWS×BLOCK`).
 
 ## Controls
 
-`←`/`→` move, `↑`/`X` rotate, `↓` soft drop, `Space` hard drop, `P` pause.
+`←`/`→` move, `↑`/`X` rotate, `↓` soft drop, `Space` hard drop, `P`/`Esc` pause menu.
